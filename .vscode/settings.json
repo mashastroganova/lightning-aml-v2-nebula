@@ -1,12 +1,8 @@
 {
-  "python.formatting.provider": "black",
-  "python.formatting.blackArgs": [
-    "--line-length=120"
-  ],
   "editor.minimap.enabled": false,
   "editor.rulers": [
     {
-      "column": 120,
+      "column": 88,
       "color": "#333333"
     }
   ],
