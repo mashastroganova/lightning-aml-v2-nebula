@@ -1,4 +1,4 @@
-# Lightning on Azure Machine Learning v2 using Nebula checkpoints
+# Lightning on Azure Machine Learning v2
 
 Demonstrates the use of PyTorch Lightning on Azure Machine Learning. SDK/CLI v2, Nebula checkpointing.
 
@@ -14,7 +14,7 @@ Usage:
    means to get access to an Ubuntu box.
 
 3. Clone the repo and open the code in an editor of your choice. For best usability, VS.Code or VS.Code for Web are
-   recommended, though.
+   recommended.
 
 4. Customization:
    - For a custom dataset, place a LightningDataModule script into folder 'data' (similar to MNISTfromBlob.py).
@@ -30,13 +30,13 @@ Usage:
    AzureML. Note that you need the Azure Machine Learning extension installed in VS.Code to make this button available. Alternatively, run a `az ml job create -g <resource_group> -w <workspace> --file <yaml file> --stream` command in
    your command line.
    
-   Please note that Nebula currently only exists in curated ACPT environment on Azure therefore it won't be possible to
+   Please note that Nebula currently only exists in curated ACPT environment on Azure. Therefore it won't be possible to
    run scripts without using one of the ACPT containers. Documentation on ACPT containers including best practices can
    be found [here](https://github.com/Azure/azureml-examples/blob/main/best-practices/largescale-deep-learning/Environment/ACPT.md).
 
    To run the script with no customized dataset provided, please modify the `train_*.yaml` files to include
-   MNISTfromMNIST as the data-module and ImageClassifier as the model. Also please comment out the data_folder and
-   batch_size parameters. In this way, the inbuilt MNIST dataset will be used.
+   MNISTfromTorchvision as the data-module and ImageClassifier as the model. Also please comment out the data_folder and
+   batch_size parameters. In this way, the built-in MNIST dataset will be used.
 
 7. Open Azure ML Studio / Jobs and watch the training job progress.
 
