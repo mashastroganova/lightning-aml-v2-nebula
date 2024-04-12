@@ -17,7 +17,7 @@ Usage:
    recommended.
 
 4. Customization:
-   - For a custom dataset, place a LightningDataModule script into folder 'data' (similar to MNISTfromBlob.py).
+   - For a custom dataset, place a LightningDataModule script into folder 'data' (similar to MNISTFromBlob.py).
    - For a custom model, place a LightningModule script into folder 'models' (similar to CustomModel.py).
    - To support model/data module authoring, you can setup a Python environment with all packages required by running
      `conda env create -n laml --file conda-dev.yaml`.
@@ -35,7 +35,7 @@ Usage:
    be found [here](https://github.com/Azure/azureml-examples/blob/main/best-practices/largescale-deep-learning/Environment/ACPT.md).
 
    To run the script with no customized dataset provided, please modify the `train_*.yaml` files to include
-   MNISTfromTorchvision as the data-module and ImageClassifier as the model. Also please comment out the data_folder and
+   MNISTFromTorchvision as the data-module and ImageClassifier as the model. Also please comment out the data_folder and
    batch_size parameters. In this way, the built-in MNIST dataset will be used.
 
 7. Open Azure ML Studio / Jobs and watch the training job progress.
