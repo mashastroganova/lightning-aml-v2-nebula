@@ -1,3 +1,7 @@
+"""MNIST dataset from Torchvision."""
+
+# pylint:disable=invalid-name,attribute-defined-outside-init
+
 import os
 
 import pytorch_lightning as pl
@@ -6,7 +10,9 @@ from torchvision import transforms
 from torchvision.datasets import MNIST as tvd_MNIST
 
 
-class MNISTfromMNIST(pl.LightningDataModule):
+class MNISTFromTorchvision(pl.LightningDataModule):
+    """Provides MNIST dataset from the torchvision package."""
+
     def __init__(self, data_dir: str = "./@data_cache"):
         super().__init__()
         self.data_dir = data_dir

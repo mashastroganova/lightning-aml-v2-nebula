@@ -1,42 +1,19 @@
+"""MNIST dataset from Azure Blob Storage."""
+
+# pylint:disable=invalid-name,attribute-defined-outside-init
+
 import os
+
 import pandas as pd
-from torchvision import transforms
 import pytorch_lightning as pl
-from torch.utils.data import Dataset, DataLoader
 import torch
-
-
-class MNISTFromBlobDataset(Dataset):
-    def __init__(self, data_folder, transform=None):
-        # Assuming we want the first CSV file in the folder
-        files = [file for file in os.listdir(data_folder) if file.endswith(".csv")]
-        if not files:
-            raise RuntimeError("No CSV files found in the data folder")
-
-        file_path = os.path.join(data_folder, files[0])
-        self.input_dataset_df = pd.read_csv(file_path)
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.input_dataset_df)
-
-    def __getitem__(self, idx):
-        row = self.input_dataset_df.iloc[idx]
-        label = row[0]
-        image_data = (
-            row[1:].values.astype("float32").reshape((28, 28, 1))
-        )  # Reshape to (28, 28, 1) for grayscale
-        if self.transform:
-            image = self.transform(image_data)
-        else:
-            image = (
-                torch.tensor(image_data, dtype=torch.float32) / 255.0
-            )  # Convert numpy array to tensor and normalize
-        label = torch.tensor(label, dtype=torch.long)
-        return image, label
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 
 
 class MNISTFromBlob(pl.LightningDataModule):
+    """Provides MNIST dataset from an Azure Blob Storage."""
+
     def __init__(self, data_folder, batch_size=32):
         super().__init__()
         self.data_folder = data_folder
@@ -87,3 +64,35 @@ class MNISTFromBlob(pl.LightningDataModule):
         return DataLoader(
             self.test_dataset, batch_size=self.batch_size, num_workers=os.cpu_count()
         )
+
+
+class MNISTFromBlobDataset(Dataset):
+    """Dataset helper class."""
+
+    def __init__(self, data_folder, transform=None):
+        # Assuming we want the first CSV file in the folder
+        files = [file for file in os.listdir(data_folder) if file.endswith(".csv")]
+        if not files:
+            raise RuntimeError("No CSV files found in the data folder")
+
+        file_path = os.path.join(data_folder, files[0])
+        self.input_dataset_df = pd.read_csv(file_path)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.input_dataset_df)
+
+    def __getitem__(self, idx):
+        row = self.input_dataset_df.iloc[idx]
+        label = row[0]
+        image_data = (
+            row[1:].values.astype("float32").reshape((28, 28, 1))
+        )  # Reshape to (28, 28, 1) for grayscale
+        if self.transform:
+            image = self.transform(image_data)
+        else:
+            image = (
+                torch.tensor(image_data, dtype=torch.float32) / 255.0
+            )  # Convert numpy array to tensor and normalize
+        label = torch.tensor(label, dtype=torch.long)
+        return image, label

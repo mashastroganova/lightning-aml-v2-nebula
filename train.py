@@ -1,3 +1,7 @@
+"""Generic training script."""
+
+# pylint: disable=invalid-name
+
 import argparse
 import json
 import os
@@ -27,18 +31,18 @@ parser.add_argument(
     "--model",
     type=str,
     required=True,
-    help="Class name of the model to train. Make sure there is a corresponding script and class in folder 'models'.",
+    help="Class name of the model to train. Needs corresponding script and class in folder 'models'.",
 )
 # -- data module
 parser.add_argument(
     "--data-module",
     type=str,
     required=True,
-    help="Class name of the data module. Make sure there is a corresponding script and class in folder 'data'.",
+    help="Class name of the data module. Needs corresponding script and class in folder 'data'.",
 )
 # -- training_strategy
-# see https://pytorch-lightning.readthedocs.io/en/stable/extensions/strategy.html#id1 for available strategies and/or
-# run:
+# see https://pytorch-lightning.readthedocs.io/en/stable/extensions/strategy.html#id1
+# for available strategies and/or run:
 # from pytorch_lightning.strategies import StrategyRegistry
 # StrategyRegistry.available_strategies()
 parser.add_argument(
@@ -119,33 +123,6 @@ ensure_model_class_exists(args.model)
 # use custom DeepSpeed configuration when available
 effective_strategy = args.training_strategy
 
-
-# Define helper function to update the trainer configuration with Nebula settings
-def configure_nebula(trainer_config, deepspeed_config=None):
-    if deepspeed_config:
-        deepspeed_config["nebula"] = {
-            "enabled": True,
-            "persistent_storage_path": os.path.abspath(
-                deepspeed_config.get("nebula", {}).get(
-                    "persistent_storage_path", "./outputs"
-                )
-            ),
-        }
-        print(json.dumps(deepspeed_config, indent=4))
-        trainer_config["strategy"] = nm.NebulaDeepspeedStrategy(config=deepspeed_config)
-    else:
-        print("using Nebula")
-        print("--------------")
-        config_params = {
-            "persistent_storage_path": os.path.abspath("./outputs"),
-            "persistent_time_interval": 100,
-        }
-        trainer_config["callbacks"].append(
-            nm.NebulaCallback(config_params=config_params)
-        )
-        trainer_config["plugins"] = [nm.NebulaCheckpointIO()]
-
-
 trainer_config = {
     "accelerator": "gpu",
     "num_nodes": number_nodes,
@@ -162,7 +139,7 @@ trainer_config = {
 
 # Default DeepSpeed configuration
 if args.training_strategy == "deepspeed" and os.path.exists("ds_config.json"):
-    with open("ds_config.json") as deepspeed_config_file:
+    with open("ds_config.json", "r", encoding="utf-8") as deepspeed_config_file:
         deepspeed_config = json.load(deepspeed_config_file)
     trainer_config["strategy"] = DeepSpeedStrategy(config=deepspeed_config)
     trainer_config["callbacks"].append(
@@ -171,9 +148,31 @@ if args.training_strategy == "deepspeed" and os.path.exists("ds_config.json"):
 else:
     deepspeed_config = None
 
-# Apply Nebula configurations if the flag is set
-if enable_nebula:
-    configure_nebula(trainer_config, deepspeed_config)
+# configure Nebula if enabled
+with CodeTimer("Configure nebula"):
+    if enable_nebula:
+        if deepspeed_config:
+            deepspeed_config["nebula"] = {
+                "enabled": True,
+                "persistent_storage_path": os.path.abspath(
+                    deepspeed_config.get("nebula", {}).get(
+                        "persistent_storage_path", "./outputs"
+                    )
+                ),
+            }
+            print(json.dumps(deepspeed_config, indent=4))
+            trainer_config["strategy"] = nm.NebulaDeepspeedStrategy(
+                config=deepspeed_config
+            )
+        else:
+            config_params = {
+                "persistent_storage_path": os.path.abspath("./outputs"),
+                "persistent_time_interval": 100,
+            }
+            trainer_config["callbacks"].append(
+                nm.NebulaCallback(config_params=config_params)
+            )
+            trainer_config["plugins"] = [nm.NebulaCheckpointIO()]
 
 with CodeTimer("Set up trainer"):
     trainer = pl.Trainer(**trainer_config)
